@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  provider     Provider?
+  image        String?
+  role         Role     @default(PARTICIPANT)
+  banned       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  hostedEvents  Event[]       @relation("EventHost")
+  participants  Participant[]
+  messages      Message[]
+  scores        Score[]
+  qnaQuestions  QnA[]
+  adminLogs     AdminLog[]
+
+  @@map("users")
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  startTime      DateTime
+  bannerUrl      String?
+  isLive         Boolean  @default(false)
+  completedEvent Boolean @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  hostId       String
+  host         User          @relation("EventHost", fields: [hostId], references: [id], onDelete: Cascade)
+  participants Participant[]
+  quizzes      Quiz[]
+  polls        Poll[]
+  messages     Message[]
+  scores       Score[]
+  qnaQuestions QnA[]
+
+  @@map("events")
+}
+
+model Participant {
+  id        String   @id @default(cuid())
+  joinedAt  DateTime @default(now())
+
+  // Relations
+  userId  String
+  eventId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("participants")
+}
+
+model Quiz {
+  id            String   @id @default(cuid())
+  question      String
+  options       String[]
+  correctAnswer Int
+  timeLimit     Int      @default(30)
+  isActive      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  // Relations
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("quizzes")
+}
+
+model Poll {
+  id        String              @id @default(cuid())
+  question  String
+  options   String[]
+  responses Json                @default("{}")
+  isActive  Boolean             @default(false)
+  createdAt DateTime            @default(now())
+
+  // Relations
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("polls")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  timestamp DateTime @default(now())
+
+  // Relations
+  userId  String
+  eventId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Score {
+  id     String @id @default(cuid())
+  points Int    @default(0)
+
+  // Relations
+  userId  String
+  eventId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("scores")
+}
+
+model QnA {
+  id       String  @id @default(cuid())
+  question String
+  approved Boolean @default(false)
+
+  // Relations
+  userId  String
+  eventId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("qna")
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  action    String
+  timestamp DateTime @default(now())
+
+  // Relations
+  adminId String
+  admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("admin_logs")
+}
+
+enum Role {
+  ADMIN
+  HOST
+  PARTICIPANT
+}
+
+enum Provider {
+  GOOGLE
+  CREDENTIALS
+}
