@@ -43,6 +43,26 @@ export function EnhancedChat({ eventId, isHost = false }: EnhancedChatProps) {
     const emojis = ["😀", "😂", "❤️", "👍", "👏", "🔥", "💯", "🎉", "🤔", "👋"]
     const quickReactions = ["👍", "❤️", "😂", "🔥"]
 
+    // Fetch chat history when component mounts
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            try {
+                const response = await fetch(`/api/events/${eventId}/messages`)
+                if (response.ok) {
+                    const data = await response.json()
+                    setMessages(data.messages || [])
+                    console.log("Loaded chat history:", data.messages?.length || 0, "messages")
+                }
+            } catch (error) {
+                console.error("Error fetching chat history:", error)
+            }
+        }
+
+        if (eventId) {
+            fetchChatHistory()
+        }
+    }, [eventId])
+
     useEffect(() => {
         if (socket && user) {
             console.log("Setting up socket listeners for eventId:", eventId)
