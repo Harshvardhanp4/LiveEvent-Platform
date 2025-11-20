@@ -44,7 +44,7 @@ npm install
 Create a `.env` file in the root directory:
 \`\`\`env
 DATABASE_URL="postgresql://username:password@localhost:5432/liveevent"
-JWT_SECRET="your-super-secret-jwt-key"
+NEXT_JWT_SECRET="your-super-secret-jwt-key"
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 \`\`\`
 
