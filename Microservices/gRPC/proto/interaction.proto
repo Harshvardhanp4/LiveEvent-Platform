@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package interaction;
+
+service InteractionService {
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse);
+  rpc CreatePoll (CreatePollRequest) returns (CreatePollResponse);
+  rpc CreateQuiz (CreateQuizRequest) returns (CreateQuizResponse);
+  rpc CreateQuestion (CreateQuestionRequest) returns (CreateQuestionResponse);
+  rpc ApproveQuestion (ApproveQuestionRequest) returns (ApproveQuestionResponse);
+  rpc SendPollResponse (SendPollResponseRequest) returns (SendPollResponseResponse);
+  rpc SendQuizResponse (SendQuizResponseRequest) returns (SendQuizResponseResponse);
+  rpc StreamInteractionEvents (StreamInteractionEventsRequest) returns (stream InteractionEvent);
+}
+
+message SendMessageRequest {
+  string event_id = 1;
+  string user_id = 2;
+  string content = 3;
+}
+
+message SendMessageResponse {
+  bool ok = 1;
+}
+
+message CreatePollRequest {
+  string event_id = 1;
+  string question = 2;
+  repeated string options = 3;
+}
+
+message CreatePollResponse {
+  bool ok = 1;
+  string poll_id = 2;
+}
+
+message CreateQuizRequest {
+  string event_id = 1;
+  string question = 2;
+  repeated string options = 3;
+  int32 correct_answer = 4;
+  int32 time_limit = 5;
+}
+
+message CreateQuizResponse {
+  bool ok = 1;
+  string quiz_id = 2;
+}
+
+message CreateQuestionRequest {
+  string event_id = 1;
+  string user_id = 2;
+  string question = 3;
+}
+
+message CreateQuestionResponse {
+  bool ok = 1;
+  string question_id = 2;
+}
+
+message ApproveQuestionRequest {
+  string question_id = 1;
+  string event_id = 2;
+}
+
+message ApproveQuestionResponse {
+  bool ok = 1;
+}
+
+message SendPollResponseRequest {
+  string event_id = 1;
+  string user_id = 2;
+  string poll_id = 3;
+  string option_id = 4;
+}
+
+message SendPollResponseResponse {
+  bool ok = 1;
+}
+
+message SendQuizResponseRequest {
+  string event_id = 1;
+  string user_id = 2;
+  string quiz_id = 3;
+  string option_id = 4;
+}
+
+message SendQuizResponseResponse {
+  bool ok = 1;
+}
+
+message StreamInteractionEventsRequest {
+  string event_id = 1;
+}
+
+message InteractionEvent {
+  string type = 1; // MESSAGE, POLL_CREATED, POLL_RESPONSE, QUIZ_CREATED, QUIZ_RESPONSE, QUESTION_SUBMITTED, etc.
+  string user_id = 2;
+  string payload_json = 3;
+}
+
+

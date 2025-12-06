@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package event;
+
+service EventService {
+  rpc GetEvent (GetEventRequest) returns (GetEventResponse);
+
+  // Host presses "Go Live" in control panel.
+  // This should validate the host and mark the event as LIVE.
+  rpc StartEvent (StartEventRequest) returns (StartEventResponse);
+
+  // Host ends the event / stream.
+  rpc EndEvent (EndEventRequest) returns (EndEventResponse);
+}
+
+message GetEventRequest {
+  string event_id = 1;
+}
+
+message GetEventResponse {
+  string event_id = 1;
+  string title = 2;
+  string status = 3; // UPCOMING, LIVE, ENDED
+}
+
+message StartEventRequest {
+  string event_id = 1;
+  string host_id = 2;
+}
+
+message StartEventResponse {
+  bool ok = 1;
+  string status = 2; // e.g. LIVE
+}
+
+message EndEventRequest {
+  string event_id = 1;
+  string host_id = 2;
+}
+
+message EndEventResponse {
+  bool ok = 1;
+  string status = 2; // e.g. ENDED
+}
+
+
